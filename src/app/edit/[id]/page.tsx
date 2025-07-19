@@ -59,50 +59,50 @@ const [selectedFilters, setSelectedFilters] = useState<Record<string, Set<string
 
   const PAGES_COUNT = 6;
   const PRODUCTS_PER_PAGE = 6;
+useEffect(() => {
+  if (!session?.accessToken || !id) return;
 
-  useEffect(() => {
-    if (!session?.accessToken || !id) return;
+  const fetchData = async () => {
+    try {
+      setLoading(true);
 
-    const fetchData = async () => {
-      try {
-        setLoading(true);
+      const [filtersRes, productsRes] = await Promise.all([
+        fetch(`https://maestro-api-dev.secil.biz/Collection/${id}/GetFiltersForConstants`, {
+          headers: { Authorization: `Bearer ${session.accessToken}` },
+        }),
+        fetch(`https://maestro-api-dev.secil.biz/Collection/${id}/GetProductsForConstants`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${session.accessToken}`,
+          },
+          body: JSON.stringify({}),
+        }),
+      ]);
 
-        const [filtersRes, productsRes] = await Promise.all([
-          fetch(`https://maestro-api-dev.secil.biz/Collection/${id}/GetFiltersForConstants`, {
-            headers: { Authorization: `Bearer ${session.accessToken}` },
-          }),
-          fetch(`https://maestro-api-dev.secil.biz/Collection/${id}/GetProductsForConstants`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${session.accessToken}`,
-            },
-            body: JSON.stringify({}),
-          }),
-        ]);
+      if (!filtersRes.ok) throw new Error('Filtre sabitleri yüklenemedi');
+      if (!productsRes.ok) throw new Error('Ürünler yüklenemedi');
 
-        if (!filtersRes.ok) throw new Error('Filtre sabitleri yüklenemedi');
-        if (!productsRes.ok) throw new Error('Ürünler yüklenemedi');
+      const filtersJson = await filtersRes.json();
+      const productsJson = await productsRes.json();
 
-        const filtersJson = await filtersRes.json();
-        const productsJson = await productsRes.json();
+      const filtersData = filtersJson.data as FilterGroup[] || [];
+      const productsData = productsJson.data?.data as Product[] || [];
 
-        const filtersData = filtersJson.data as FilterGroup[] || [];
-        const productsData = productsJson.data?.data as Product[] || [];
+      setFilters(filtersData);
+      setProducts(productsData);
+      setSelectedFilters({});
+      setSelectedProducts(Array.from({ length: PAGES_COUNT }, () => []));
+    } catch (err) {
+      setError((err as Error).message || 'Veriler yüklenemedi.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
-        setFilters(filtersData);
-        setProducts(productsData);
-        setSelectedFilters({});
-        setSelectedProducts(Array.from({ length: PAGES_COUNT }, () => []));
-      } catch (err) {
-        setError((err as Error).message || 'Veriler yüklenemedi.');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [id, session]);
+  fetchData();
+  // Sadece id ve session.accessToken değiştiğinde tetiklenir
+}, [id, session?.accessToken]);
 
   const toggleFilter = (groupId: string, value: string) => {
     setSelectedFilters((prev) => {

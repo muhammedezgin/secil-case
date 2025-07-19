@@ -77,41 +77,51 @@ export default function FilterModal({
 
         {/* İçerik (scrollable) */}
         <div className="flex-1 overflow-y-auto px-6 py-4 space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filters
-              .filter((group) => VISIBLE_FILTERS.has(group.title))
-              .map((group) => (
-                <div key={group.id} className="border rounded overflow-hidden">
-                  <button
-                    onClick={() => toggleGroup(group.id)}
-                    className="w-full flex justify-between items-center px-4 py-2 font-semibold bg-gray-100 hover:bg-gray-200 text-gray-900"
-                  >
-                    <span>{group.title}</span>
-                    {openGroups[group.id] ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
-                  </button>
+         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+  {filters
+    .filter((group) => VISIBLE_FILTERS.has(group.title))
+    .map((group) => (
+      <div
+        key={group.id}
+        className="border rounded-2xl overflow-hidden shadow bg-white"
+      >
+        <button
+          onClick={() => toggleGroup(group.id)}
+          className="w-full flex justify-between items-center px-5 py-3 font-semibold bg-gray-50 hover:bg-gray-100 text-gray-900 transition rounded-t-2xl"
+          style={{ borderBottom: openGroups[group.id] ? '1px solid #e5e7eb' : undefined }}
+        >
+          <span>{group.title}</span>
+          {openGroups[group.id] ? (
+            <ChevronUp size={22} className="text-gray-400" />
+          ) : (
+            <ChevronDown size={22} className="text-gray-400" />
+          )}
+        </button>
 
-                  {openGroups[group.id] && (
-                    <div className="p-4 border-t bg-white">
-                      <div className="flex flex-wrap gap-2">
-                        {group.values.map((opt) => (
-                          <label
-                            key={`${group.id}-${opt.value}`}
-                            className="flex items-center space-x-2 text-sm text-gray-900"
-                          >
-                            <input
-                              type="checkbox"
-                              checked={selected[group.id]?.has(opt.value) || false}
-                              onChange={() => onToggle(group.id, opt.value)}
-                            />
-                            <span>{opt.valueName || opt.value}</span>
-                          </label>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
+        {openGroups[group.id] && (
+          <div className="p-5 bg-white rounded-b-2xl border-t">
+            <div className="flex flex-wrap gap-3">
+              {group.values.map((opt) => (
+                <label
+                  key={`${group.id}-${opt.value}`}
+                  className="flex items-center gap-2 text-sm text-gray-900 bg-gray-50 px-4 py-2 rounded-lg cursor-pointer border border-gray-200 hover:bg-gray-100 transition"
+                  style={{ minWidth: 120 }}
+                >
+                  <input
+                    type="checkbox"
+                    checked={selected[group.id]?.has(opt.value) || false}
+                    onChange={() => onToggle(group.id, opt.value)}
+                    className="accent-black w-5 h-5 rounded border-gray-300"
+                  />
+                  <span className="truncate">{opt.valueName || opt.value}</span>
+                </label>
               ))}
+            </div>
           </div>
+        )}
+      </div>
+    ))}
+</div>
 
           {/* Uygulanan Kriterler */}
           <div>
@@ -159,4 +169,5 @@ export default function FilterModal({
       </div>
     </div>
   );
+  //update geldi
 }
